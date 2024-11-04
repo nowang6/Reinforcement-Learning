@@ -1,6 +1,5 @@
 # 导入gym库
 import gymnasium as gym
-from tools import GymHelper
 # 导入必要的库
 import torch
 import torch.nn as nn
@@ -13,6 +12,9 @@ import time
 import random
 import collections
 from tqdm import * # 用于显示进度条
+from gymnasium.wrappers.common import TimeLimit
+
+env = gym.make('CartPole-v1', render_mode='rgb_array')
 
 # 定义简单神经网络
 class Net(nn.Module):
@@ -146,7 +148,7 @@ max_steps = 500 # 每个回合的最大步数
 batch_size = 32 # 采样数
 
 # 创建DQN对象
-env = gym.make('CartPole-v1', render_mode='rgb_array')
+
 agent = DQN(env)
 # 定义保存每个回合奖励的列表
 episode_rewards = []
@@ -190,14 +192,12 @@ for episode in tqdm(range(max_episodes), file=sys.stdout):
 
 
 # 重置环境，开始新的一轮游戏
+env = gym.make('CartPole-v1', render_mode='human')
 observation, _ = env.reset()
-# 创建GymHelper对象来辅助显示
-gym_helper = GymHelper(env, figsize = (3, 3))
 
 # 开始游戏
 for i in range(500):
-    # 渲染环境，title为当前步骤数
-    gym_helper.render(title = str(i))
+
     
     # 通过Q网络找到当前状态下的最优动作
     action = agent.choose_action(observation, 0)
@@ -208,7 +208,5 @@ for i in range(500):
     if terminated or truncated:
         break
 
-# 游戏结束
-gym_helper.render(title = "Finished")
-# 关闭环境
+
 env.close()
